@@ -146,7 +146,7 @@ def decode_record(content):
 
 class  HttpRecordStore(RecordStore):
     
-    def __init__(self, server_url, username, password):
+    def __init__(self, server_url="http://127.0.0.1:5000", username="", password=""):
         self.server_url = server_url
         if self.server_url[-1] != "/":
             self.server_url += "/"
