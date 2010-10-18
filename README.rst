@@ -19,6 +19,7 @@ Instructions
 #. Install pymongo and httplib2:
 
       easy_install pymongo
+      
       easy_install httplib2
 
 #. Run the server from the command-line:
@@ -28,6 +29,7 @@ Instructions
 #. Create a sumatra project:
 
       smt init --plugins=sumatra.recordstore.http_store TestProject
+      
       smt configure -e python -m test.py
 
    Please use the http_store from this repository as it takes care to set
@@ -43,7 +45,9 @@ Instructions
    the data you will need to use mongo client:
 
       $ mongo
+      
       > use smtdb
+      
       > db.simulations.find()
 
    The data sent by http_store client should be in the database
