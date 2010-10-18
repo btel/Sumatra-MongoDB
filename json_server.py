@@ -1,7 +1,4 @@
-#Copyright Jon Berg , turtlemeat.com
-
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
-#import pri
 import json
 from pymongo import Connection
 from pymongo.errors import PyMongoError
