@@ -114,6 +114,8 @@ def decode_record(content):
     if pdata["type"] == "dict":
         parameter_set = eval(pdata["content"])
         assert isinstance(parameter_set, dict)
+    elif pdata['type']=="NoneType":
+        parameter_set = None
     else:
         parameter_set = getattr(parameters, pdata["type"])(pdata["content"])
     ldata = data["launch_mode"]

@@ -5,25 +5,36 @@ from pymongo.errors import PyMongoError
 import re
 
 def get(project, label):
-    print "List"
-    return 
-def list(project):
-    msg = json.dumps({"records":[]})
+    record_obj = db.simulations.find_one(
+            {"project_name":project,"record_label":label})
+    del record_obj['_id']
+    msg = json.dumps(record_obj)
+    print msg
     return msg
 
-urlpatterns = [(r'^(?P<project>.*)/(?P<label>.+)$', get),
-               (r'^(?P<project>.*)/$', list)
+def list(project):
+    def format_url(record):
+        return "%s%s/%s" % (server_url, project, record)
+
+    record_objs = db.simulations.find({"project_name":project})
+
+    urls = [format_url(record['record_label']) for record in record_objs]
+    msg = json.dumps({"records":urls})
+    print msg
+    return msg
+
+urlpatterns = [(r'^/(?P<project>.+)/(?P<label>.+)$', get),
+               (r'^/(?P<project>.+)/$', list)
               ]
 
 connection = Connection()
 db = connection.smtdb 
+server_url = "http://127.0.0.1:5000/"
 
 class MyHandler(BaseHTTPRequestHandler):
 
     def __init__(self, request, client_address, server):
         BaseHTTPRequestHandler.__init__(self,request, client_address, server)
-
-        
 
     def do_GET(self):
         
@@ -35,8 +46,10 @@ class MyHandler(BaseHTTPRequestHandler):
                     out = handler(**args)
                 except PyMongoError:
                     self.send_response(500, "could not connect to database")
-                self.wfile.write(out)
                 self.send_response(200)
+                self.send_header("Content-type", "application/json")
+                self.end_headers()
+                self.wfile.write(out)
                 return
 
         self.send_response(400,"request badly formatted")
