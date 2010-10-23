@@ -2,10 +2,46 @@ from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import json
 from pymongo import Connection
 from pymongo.errors import PyMongoError
+import re
+
+def get(project, label):
+    print "List"
+    return 
+def list(project):
+    msg = json.dumps({"records":[]})
+    return msg
+
+urlpatterns = [(r'^(?P<project>.*)/(?P<label>.+)$', get),
+               (r'^(?P<project>.*)/$', list)
+              ]
+
+connection = Connection()
+db = connection.smtdb 
 
 class MyHandler(BaseHTTPRequestHandler):
 
-    
+    def __init__(self, request, client_address, server):
+        BaseHTTPRequestHandler.__init__(self,request, client_address, server)
+
+        
+
+    def do_GET(self):
+        
+        for pattern, handler in urlpatterns:
+            match = re.match(pattern, self.path)
+            if match:
+                args = match.groupdict()
+                try:
+                    out = handler(**args)
+                except PyMongoError:
+                    self.send_response(500, "could not connect to database")
+                self.wfile.write(out)
+                self.send_response(200)
+                return
+
+        self.send_response(400,"request badly formatted")
+        return
+
 
     def do_PUT(self):
 
@@ -21,8 +57,6 @@ class MyHandler(BaseHTTPRequestHandler):
             self.send_response(400, "request badly formatted")
             return
         try:
-            connection = Connection()
-            db = connection.smtdb 
             simulations = db.simulations
             simulations.insert(msg)
         except PyMongoError:
